@@ -650,6 +650,19 @@ if st.session_state.input_mode == "2025 Season":
                 return ""
 
         grade_cols_s = [c for c in ["Stuff+", "Pitching+"] if c in disp_s.columns]
+
+        # Weighted averages across the filtered dataset
+        if not disp_s.empty:
+            w = disp_s["Pitches"].values
+            wa_stuff = float(np.average(disp_s["Stuff+"].values, weights=w))
+            sm1, sm2, sm3 = st.columns(3)
+            sm1.metric("Avg Stuff+ (weighted)", f"{wa_stuff:.1f}", f"{wa_stuff-100:+.1f}")
+            if "Pitching+" in disp_s.columns and disp_s["Pitching+"].notna().any():
+                pp_mask = disp_s["Pitching+"].notna()
+                wa_pitching = float(np.average(disp_s.loc[pp_mask, "Pitching+"].values, weights=disp_s.loc[pp_mask, "Pitches"].values))
+                sm2.metric("Avg Pitching+ (weighted)", f"{wa_pitching:.1f}", f"{wa_pitching-100:+.1f}")
+            sm3.metric("Total Pitches in View", f"{int(disp_s['Pitches'].sum()):,}")
+
         st.markdown(f"**{len(disp_s)} pitchers** · min {min_pitches} pitches · sorted by {sort_by}")
         st.dataframe(
             disp_s.style.applymap(color_grade_s, subset=grade_cols_s),
