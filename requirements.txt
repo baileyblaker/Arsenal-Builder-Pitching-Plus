@@ -1,0 +1,7 @@
+lightgbm
+pandas
+numpy
+scikit-learn
+streamlit==1.42.0
+plotly
+altair>=5.0.0
